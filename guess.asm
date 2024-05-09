@@ -105,6 +105,8 @@ divunits:   LDB divunitcount                        ; load units counter
 #org 0x1001 gusnum:                                 ; storage for guess number
 #org 0x1002 guscnt:                                 ; storage for guess count
 
+            ; TODO: use zero page?
+
 #org 0x1003 divnumber:
 #org 0x1004 divtencount:
 #org 0x1005 divunitcount:
