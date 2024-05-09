@@ -76,17 +76,16 @@ cr:         LDI 0x0a                                ; carriage return
 PrintDec:   STZ 0                                   ; store number in 0
             MIB 0x00, divtencount                   ; reset tens counter
 divnotdone: CIZ 10, 0                               ; compare number to ten
-            BMI divdone                             ; done if less than ten
+            BMI printtens                           ; done if less than ten
             SIZ 10, 0                               ; otherwise subtract 10
             INB divtencount                         ; increment tens counter
             JPA divnotdone                          ; keep going until counted all tens
-divdone:    MZB 0, divunitcount                     ; store the left over units
-            LDB divtencount                         ; load the tens counter
+printtens:  LDB divtencount                         ; load the tens counter
             CPI 0                                   ; is tens counter zero?
-            BEQ divunits                            ; ignore if zero
+            BEQ printunits                          ; ignore if zero
             ADI 48                                  ; convert number to ascii
             JAS _PrintChar                          ; print tens
-divunits:   LDB divunitcount                        ; load units counter
+printunits: LDZ 0                                   ; load left over units from number in 0
             ADI 48                                  ; convert number to ascii
             JAS _PrintChar                          ; print units
             RTS                                     ; return
@@ -100,7 +99,6 @@ divunits:   LDB divunitcount                        ; load units counter
             ; TODO: use zero page?
 
 #org 0x1004 divtencount:
-#org 0x1005 divunitcount:
 
 ; OS API
 
