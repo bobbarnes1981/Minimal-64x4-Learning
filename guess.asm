@@ -73,17 +73,14 @@ cr:         LDI 0x0a                                ; carriage return
 
 ; subroutine to print decimal value in 'A'
 
-PrintDec:   STB divnumber                           ;
-            MIB 0x00, divtencount                   ; overwrites 'A'. So store and retreive 'A'
-            LDB divnumber                           ;
-divnotdone: CPI 10                                  ; compare to ten
+PrintDec:   STZ 0                                   ; store number in 0
+            MIB 0x00, divtencount                   ; reset tens counter
+divnotdone: CIZ 10, 0                               ; compare number to ten
             BMI divdone                             ; done if less than ten
-            SUI 10                                  ; otherwise subtract 10
-            STB divnumber                           ; 
-            INB divtencount                         ; overwrites 'A'. So store and retreive 'A'
-            LDB divnumber                           ;
+            SIZ 10, 0                               ; otherwise subtract 10
+            INB divtencount                         ; increment tens counter
             JPA divnotdone                          ; keep going until counted all tens
-divdone:    STB divunitcount                        ; store the left over units
+divdone:    MZB 0, divunitcount                     ; store the left over units
             LDB divtencount                         ; load the tens counter
             CPI 0                                   ; is tens counter zero?
             BEQ divunits                            ; ignore if zero
@@ -102,7 +99,6 @@ divunits:   LDB divunitcount                        ; load units counter
 
             ; TODO: use zero page?
 
-#org 0x1003 divnumber:
 #org 0x1004 divtencount:
 #org 0x1005 divunitcount:
 
