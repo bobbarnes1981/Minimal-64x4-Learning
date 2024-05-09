@@ -13,11 +13,6 @@ getnum:     JPS _Random                             ; generate pseudo random num
             STB rndnum                              ; store register 'A' in rndnum
             CPI 10                                  ; compare A-10
             BCS getnum                              ; branch on carry set (retry rnd)
-
-; debug - print the selected random number
-;            JAS PrintDec
-;            JAS cr
-
             MIB 0x00, guscnt                        ; reset guess counter
 
 ; get the guess from the user
@@ -31,10 +26,6 @@ reguess:    MIV _ReadBuffer, _ReadPtr               ; reset read pointer
             JPS _ReadLine                           ; read a line
             LDB _ReadBuffer                         ; load first byte to 'A'
             STB gusnum                              ; store register 'A' in gusnum
-
-; debug - print the guess
-;            JAS _PrintChar                          ; print byte in 'A'
-;            JAS cr                                  ;
 
 ; validate the user input
 
@@ -70,10 +61,6 @@ correct:    JPS _Print "Correct", 0                 ;
             LDB _ReadBuffer                         ; load first byte to 'A'
             CPI 'y'                                 ;
             BEQ getnum                              ;
-; debug - print the response
-;            JAS _PrintChar                          ; print byte in 'A'
-;            JAS cr                                  ;
-
             JAS _Prompt                             ;
 
 ; subroutine for carriage return, there must be a better way
