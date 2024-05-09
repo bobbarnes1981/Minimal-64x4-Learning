@@ -73,19 +73,18 @@ cr:         LDI 0x0a                                ; carriage return
 
 ; subroutine to print decimal value in 'A'
 
-PrintDec:   STZ 0                                   ; store number in 0
-            MIB 0x00, divtencount                   ; reset tens counter
-divnotdone: CIZ 10, 0                               ; compare number to ten
+PrintDec:   STZ 0                                   ; store number in z0
+            MIZ 0x00, 1                             ; reset tens counter in z1
+divsubten:  CIZ 10, 0                               ; compare number to ten
             BMI printtens                           ; done if less than ten
             SIZ 10, 0                               ; otherwise subtract 10
-            INB divtencount                         ; increment tens counter
-            JPA divnotdone                          ; keep going until counted all tens
-printtens:  LDB divtencount                         ; load the tens counter
-            CPI 0                                   ; is tens counter zero?
+            INZ 1                                   ; increment tens counter in z1
+            JPA divsubten                           ; keep going until counted all tens
+printtens:  CIZ 0, 1                                ; is tens counter zero?
             BEQ printunits                          ; ignore if zero
             ADI 48                                  ; convert number to ascii
             JAS _PrintChar                          ; print tens
-printunits: LDZ 0                                   ; load left over units from number in 0
+printunits: LDZ 0                                   ; load left over units from number in z0
             ADI 48                                  ; convert number to ascii
             JAS _PrintChar                          ; print units
             RTS                                     ; return
@@ -95,10 +94,6 @@ printunits: LDZ 0                                   ; load left over units from 
 #org 0x1000 rndnum:                                 ; storage for random number
 #org 0x1001 gusnum:                                 ; storage for guess number
 #org 0x1002 guscnt:                                 ; storage for guess count
-
-            ; TODO: use zero page?
-
-#org 0x1004 divtencount:
 
 ; OS API
 
