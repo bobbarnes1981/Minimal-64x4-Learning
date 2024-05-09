@@ -79,13 +79,13 @@ cr:         LDI 0x0a                                ; carriage return
 ; subroutine to print decimal value in 'A'
 
 PrintDec:   STB divnumber                           ;
-            MIB 0x00, divtencount                   ; this appeared to be clearing 'A'?!?! So store and retreive 'A'
+            MIB 0x00, divtencount                   ; overwrites 'A'. So store and retreive 'A'
             LDB divnumber                           ;
 divnotdone: CPI 10                                  ; compare to ten
             BMI divdone                             ; done if less than ten
             SUI 10                                  ; otherwise subtract 10
             STB divnumber                           ; 
-            INB divtencount                         ; incrementing tens counter modifies 'A'. So store and retreive 'A'
+            INB divtencount                         ; overwrites 'A'. So store and retreive 'A'
             LDB divnumber                           ;
             JPA divnotdone                          ; keep going until counted all tens
 divdone:    STB divunitcount                        ; store the left over units
