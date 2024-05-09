@@ -25,8 +25,7 @@ getnum:     JPS _Random                             ; generate pseudo random num
 getguess:   INB guscnt                              ; increment guess counter
             JPS _Print "Guess: ", 0                 ;
             LDB guscnt                              ; load guess count to 'A'
-            ADI 48                                  ; convert numeric to text
-            JAS _PrintChar                          ; print guess count
+            JAS PrintDec                           ; print guess count
             JAS cr                                  ;
 reguess:    MIV _ReadBuffer, _ReadPtr               ; reset read pointer
             JPS _ReadLine                           ; read a line
