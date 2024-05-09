@@ -75,14 +75,26 @@ cr:         LDI 0x0a                                ; carriage return
 
 PrintDec:   STZ 0                                   ; store number in z0
             MIZ 0x00, 1                             ; reset tens counter in z1
-divsubten:  CIZ 10, 0                               ; compare number to ten
-            BMI printtens                           ; done if less than ten
+            MIZ 0x00, 2                             ; reset hundreds counter in z2
+divsubhun:  CIZ 100, 0                              ; compare number to 100
+            BMI divsubten                           ; done if less than 100
+            SIZ 100, 0                              ; otherwise subtract 100
+            INZ 2                                   ; increment 100 counter
+            JPA divsubhun                           ; keep going until counted all hundreds
+divsubten:  CIZ 10, 0                               ; compare number to 10
+            BMI printhuns                           ; done if less than 10
             SIZ 10, 0                               ; otherwise subtract 10
-            INZ 1                                   ; increment tens counter in z1
+            INZ 1                                   ; increment 10 counter in z1
             JPA divsubten                           ; keep going until counted all tens
-printtens:  CIZ 0, 1                                ; is tens counter zero?
-            BEQ printunits                          ; ignore if zero
+printhuns:  CIZ 0, 2                                ; is 100 counter zero? (also loads to 'A')
+            BEQ printtens                           ; ignore if zero
             ADI 48                                  ; convert number to ascii
+            JAS _PrintChar                          ; print hundreds
+            LDZ 1                                   ; load tens
+            JPA printtensf                          ; not zero so force print tens
+printtens:  CIZ 0, 1                                ; is 10 counter zero? (also loads to 'A')
+            BEQ printunits                          ; ignore if zero
+printtensf: ADI 48                                  ; convert number to ascii
             JAS _PrintChar                          ; print tens
 printunits: LDZ 0                                   ; load left over units from number in z0
             ADI 48                                  ; convert number to ascii
