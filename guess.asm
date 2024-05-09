@@ -62,10 +62,19 @@ hi:         JPS _Print "Too hi", 0                  ;
 
 correct:    JPS _Print "Correct", 0                 ;
 
-            ; TODO: try again?
+; try again?
 
-loop:       NOP                                     ;
-            JPA loop                                ;
+            JPS _Print "Try again? y/n", 0          ;
+            MIV _ReadBuffer, _ReadPtr               ; reset read pointer
+            JPS _ReadLine                           ; read a line
+            LDB _ReadBuffer                         ; load first byte to 'A'
+            CPI 'y'                                 ;
+            BEQ getnum                              ;
+; debug - print the response
+;            JAS _PrintChar                          ; print byte in 'A'
+;            JAS cr                                  ;
+
+            JAS _Prompt                             ;
 
 ; subroutine for carriage return, there must be a better way
 
