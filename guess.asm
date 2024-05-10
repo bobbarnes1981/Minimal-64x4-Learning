@@ -13,30 +13,30 @@ getnum:     JPS _Random                             ; generate pseudo random num
             STB rndnum                              ; store register 'A' in rndnum
             CPI 10                                  ; compare A-10
             BCS getnum                              ; branch on carry set (retry rnd)
-            MIB 0x00, guscnt                        ; reset guess counter
+            MIZ 0x00, guesscount                    ; reset guess counter
 
 ; get the guess from the user
 
-getguess:   INB guscnt                              ; increment guess counter
+getguess:   INZ guesscount                          ; increment guess counter
             JPS _Print "Guess: ", 0                 ;
-            LDB guscnt                              ; load guess count to 'A'
+            LDZ guesscount                          ; load guess count to 'A'
             JAS PrintDec                            ; print guess count
             JAS cr                                  ;
 reguess:    MIV _ReadBuffer, _ReadPtr               ; reset read pointer
             JPS _ReadLine                           ; read a line
             LDB _ReadBuffer                         ; load first byte to 'A'
-            STB gusnum                              ; store register 'A' in gusnum
+            STZ guessnum                            ; store register 'A' in guessnum
 
 ; validate the user input
 
-            CIB 48, gusnum                          ; compare 48 ('0') to guess char
+            CIZ 48, guessnum                        ; compare 48 ('0') to guess char
             BMI reguess                             ;
-            CIB 58, gusnum                          ; compare 57 (':') to guess char
+            CIZ 58, guessnum                        ; compare 57 (':') to guess char
             BPL reguess                             ;
 
 ; check the guess
 
-            LDB gusnum                              ;
+            LDZ guessnum                            ;
             SUI 48                                  ; convert text to numeric
             CPB rndnum                              ; compare guess to random number
             BEQ correct                             ; guess is equal to random
@@ -52,6 +52,7 @@ hi:         JPS _Print "Too hi", 0                  ;
             JPA getguess                            ;
 
 correct:    JPS _Print "Correct", 0                 ;
+            JAS cr                                  ;
 
 ; try again?
 
@@ -73,39 +74,47 @@ cr:         LDI 0x0a                                ; carriage return
 
 ; subroutine to print decimal value in 'A'
 
-PrintDec:   STZ 0                                   ; store number in z0
-            MIZ 0x00, 1                             ; reset tens counter in z1
-            MIZ 0x00, 2                             ; reset hundreds counter in z2
-divsubhun:  CIZ 100, 0                              ; compare number to 100
+PrintDec:   STZ divnumber                           ; store number
+            MIZ 0x00, divtencount                   ; reset tens counter
+            MIZ 0x00, divhuncount                   ; reset hundreds counter
+divsubhun:  CIZ 100, divnumber                      ; compare number to 100
             BMI divsubten                           ; done if less than 100
-            SIZ 100, 0                              ; otherwise subtract 100
-            INZ 2                                   ; increment 100 counter
+            SIZ 100, divnumber                      ; otherwise subtract 100
+            INZ divhuncount                         ; increment 100 counter
             JPA divsubhun                           ; keep going until counted all hundreds
-divsubten:  CIZ 10, 0                               ; compare number to 10
+divsubten:  CIZ 10, divnumber                       ; compare number to 10
             BMI printhuns                           ; done if less than 10
-            SIZ 10, 0                               ; otherwise subtract 10
-            INZ 1                                   ; increment 10 counter in z1
+            SIZ 10, divnumber                       ; otherwise subtract 10
+            INZ divtencount                         ; increment 10 counter
             JPA divsubten                           ; keep going until counted all tens
-printhuns:  CIZ 0, 2                                ; is 100 counter zero? (also loads to 'A')
+printhuns:  CIZ 0, divhuncount                      ; is 100 counter zero? (also loads to 'A')
             BEQ printtens                           ; ignore if zero
             ADI 48                                  ; convert number to ascii
             JAS _PrintChar                          ; print hundreds
-            LDZ 1                                   ; load tens
+            LDZ divtencount                         ; load tens
             JPA printtensf                          ; not zero so force print tens
-printtens:  CIZ 0, 1                                ; is 10 counter zero? (also loads to 'A')
+printtens:  CIZ 0, divtencount                      ; is 10 counter zero? (also loads to 'A')
             BEQ printunits                          ; ignore if zero
 printtensf: ADI 48                                  ; convert number to ascii
             JAS _PrintChar                          ; print tens
-printunits: LDZ 0                                   ; load left over units from number in z0
+printunits: LDZ divnumber                           ; load left over units from number
             ADI 48                                  ; convert number to ascii
             JAS _PrintChar                          ; print units
             RTS                                     ; return
 
+#mute
+
 ; storage
 
-#org 0x1000 rndnum:                                 ; storage for random number
-#org 0x1001 gusnum:                                 ; storage for guess number
-#org 0x1002 guscnt:                                 ; storage for guess count
+#org 0x0000
+
+rndnum:         0xff
+guessnum:       0xff
+guesscount:     0xff
+
+divnumber:      0xff
+divtencount:    0xff
+divhuncount:    0xff
 
 ; OS API
 
