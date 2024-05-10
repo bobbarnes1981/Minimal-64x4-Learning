@@ -6,8 +6,8 @@ Assemble files using
 
 Connect terminal
 
-* 500kbps
-* 1, 8, 2, n (no flow control)
+* 500000 8N2
+* no flow control
 
 Load file into computer by terminal
 
